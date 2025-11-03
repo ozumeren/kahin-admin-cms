@@ -97,21 +97,27 @@ export default function AdminLayout() {
         {/* User Info & Logout */}
         <div className="p-4 border-t" style={{ borderColor: '#222222' }}>
           <div className="mb-3 px-2">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#00ff00' }}></div>
-              <p className="font-semibold text-sm" style={{ color: '#ffffff' }}>
-                {user?.username}
-              </p>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#00ff00' }}></div>
+                <p className="font-semibold text-sm" style={{ color: '#ffffff' }}>
+                  {user?.username}
+                </p>
+              </div>
+              <span 
+                className="px-2 py-0.5 rounded text-xs font-bold"
+                style={{ 
+                  backgroundColor: '#ccff33', 
+                  color: '#000000',
+                  letterSpacing: '0.5px'
+                }}
+              >
+                ADMIN
+              </span>
             </div>
             <p className="text-xs" style={{ color: '#888888' }}>
               {user?.email}
             </p>
-            <span 
-              className="inline-block mt-2 px-2 py-1 rounded text-xs font-medium"
-              style={{ backgroundColor: '#ccff33', color: '#000000' }}
-            >
-              ADMIN
-            </span>
           </div>
           <button
             onClick={handleLogout}
@@ -142,17 +148,11 @@ export default function AdminLayout() {
             borderColor: '#222222'
           }}
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="lg:hidden w-12"></div>
-              <h2 className="text-xl font-bold" style={{ color: '#ffffff' }}>
-                {menuItems.find(item => isActive(item.path))?.label || 'Admin Panel'}
-              </h2>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ backgroundColor: 'rgba(204, 255, 51, 0.1)' }}>
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#00ff00' }}></div>
-              <span className="text-xs font-semibold" style={{ color: '#ccff33' }}>ONLINE</span>
-            </div>
+          <div className="flex items-center gap-4">
+            <div className="lg:hidden w-12"></div>
+            <h2 className="text-xl font-bold" style={{ color: '#ffffff' }}>
+              {menuItems.find(item => isActive(item.path))?.label || 'Admin Panel'}
+            </h2>
           </div>
         </header>
 
