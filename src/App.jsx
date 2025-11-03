@@ -10,6 +10,8 @@ import DashboardPage from './pages/DashboardPage'
 import MarketsManagePage from './pages/MarketsManagePage'
 import UsersManagePage from './pages/UsersManagePage'
 import CreateMarketPage from './pages/CreateMarketPage'
+import './index.css'
+import './styles.css'
 import './App.css'
 
 const queryClient = new QueryClient({
