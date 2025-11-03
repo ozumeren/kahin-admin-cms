@@ -70,25 +70,23 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {cards.map((card) => {
           const Icon = card.icon
           return (
             <div
               key={card.title}
-              className="rounded-2xl p-6 transition-all hover:scale-105"
+              className="rounded-2xl p-6 transition-all hover:scale-[1.02]"
               style={{ 
                 backgroundColor: '#1a1a1a',
                 border: '1px solid #222222'
               }}
             >
-              <div className="flex items-center justify-between mb-4">
-                <div 
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: card.bgColor }}
-                >
-                  <Icon className="w-6 h-6" style={{ color: card.color }} />
-                </div>
+              <div 
+                className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+                style={{ backgroundColor: card.bgColor }}
+              >
+                <Icon className="w-6 h-6" style={{ color: card.color }} />
               </div>
               <h3 className="text-sm mb-2" style={{ color: '#888888' }}>
                 {card.title}
@@ -110,31 +108,31 @@ export default function DashboardPage() {
           {recentMarkets.map((market) => (
             <div
               key={market.id}
-              className="rounded-xl p-6 transition-all hover:border-opacity-100"
+              className="rounded-2xl p-6 transition-all"
               style={{ 
                 backgroundColor: '#1a1a1a',
                 border: '1px solid #222222'
               }}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold mb-2" style={{ color: '#ffffff' }}>
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-semibold mb-3 truncate" style={{ color: '#ffffff' }}>
                     {market.title}
                   </h3>
-                  <div className="flex items-center gap-4 text-sm" style={{ color: '#888888' }}>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
+                  <div className="flex flex-wrap items-center gap-4 text-sm" style={{ color: '#888888' }}>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 flex-shrink-0" />
                       <span>{new Date(market.closing_date).toLocaleDateString('tr-TR')}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <DollarSign className="w-4 h-4" />
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 flex-shrink-0" />
                       <span>₺{parseFloat(market.volume || 0).toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
-                <div>
+                <div className="flex-shrink-0 self-start">
                   <span
-                    className="px-4 py-2 rounded-lg text-sm font-medium"
+                    className="inline-block px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap"
                     style={{
                       backgroundColor: 
                         market.status === 'open' ? 'rgba(0, 255, 0, 0.1)' :
@@ -156,7 +154,7 @@ export default function DashboardPage() {
           ))}
 
           {recentMarkets.length === 0 && (
-            <div className="text-center py-12">
+            <div className="text-center py-12 rounded-2xl" style={{ backgroundColor: '#1a1a1a', border: '1px solid #222222' }}>
               <TrendingUp className="w-12 h-12 mx-auto mb-4" style={{ color: '#ccff33', opacity: 0.3 }} />
               <p style={{ color: '#888888' }}>Henüz market bulunmuyor</p>
             </div>

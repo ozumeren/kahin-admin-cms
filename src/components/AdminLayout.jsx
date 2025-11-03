@@ -54,21 +54,20 @@ export default function AdminLayout() {
       >
         {/* Logo */}
         <div className="p-6 border-b" style={{ borderColor: '#222222' }}>
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-3">
             <div 
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ backgroundColor: 'rgba(204, 255, 51, 0.1)' }}
+              className="flex items-center justify-center"
+              style={{ width: '40px', height: 'auto' }}
             >
-              <Shield className="w-6 h-6" style={{ color: '#ccff33' }} />
+              <img 
+                src="https://i.ibb.co/qL5cd5C1/Logo.png" 
+                alt="Kahinmarket Logo"
+                style={{ width: '100%', height: 'auto' }}
+              />
             </div>
-            <div>
-              <h1 className="text-xl font-bold" style={{ color: '#ccff33' }}>
-                Kahin CMS
-              </h1>
-              <p className="text-xs" style={{ color: '#888888' }}>
-                Admin Panel
-              </p>
-            </div>
+            <h1 className="text-xl font-bold" style={{ color: '#ccff33' }}>
+              Kahin CMS
+            </h1>
           </div>
         </div>
 

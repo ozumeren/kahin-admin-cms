@@ -196,9 +196,9 @@ export default function MarketsManagePage() {
             }}
           >
             {/* Market Header */}
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold mb-2" style={{ color: '#ffffff' }}>
+            <div className="flex items-center justify-between mb-4 gap-4">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-semibold mb-2 truncate" style={{ color: '#ffffff' }}>
                   {market.title}
                 </h3>
                 <p className="text-sm mb-3 line-clamp-2" style={{ color: '#888888' }}>
@@ -206,7 +206,7 @@ export default function MarketsManagePage() {
                 </p>
               </div>
               <span
-                className="px-3 py-1 rounded-lg text-xs font-medium ml-4"
+                className="px-3 py-1 rounded-lg text-xs font-medium flex-shrink-0"
                 style={{
                   backgroundColor: 
                     market.status === 'open' ? 'rgba(0, 255, 0, 0.1)' :
