@@ -1,6 +1,6 @@
 // admin-cms/src/pages/UsersManagePage.jsx
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tantml:react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Search, Users as UsersIcon, Shield, DollarSign, X } from 'lucide-react'
 import apiClient from '../lib/apiClient'
 import toast from 'react-hot-toast'
