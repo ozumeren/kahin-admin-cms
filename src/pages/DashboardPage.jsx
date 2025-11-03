@@ -1,22 +1,26 @@
 // admin-cms/src/pages/DashboardPage.jsx
 import { useQuery } from '@tanstack/react-query'
-import { TrendingUp, Users, DollarSign, Activity } from 'lucide-react'
+import { TrendingUp, Users, DollarSign, Activity, Clock, CheckCircle } from 'lucide-react'
 import apiClient from '../lib/apiClient'
 
 export default function DashboardPage() {
   const { data: stats, isLoading } = useQuery({
     queryKey: ['adminStats'],
     queryFn: async () => {
-      const [markets, users] = await Promise.all([
+      const [marketsRes, usersRes] = await Promise.all([
         apiClient.get('/admin/markets'),
         apiClient.get('/admin/users')
       ])
       return {
-        markets: markets.data.data,
-        users: users.data.data
+        markets: marketsRes.data.data || [],
+        users: usersRes.data.data?.users || []
       }
     }
   })
+
+  const totalVolume = stats?.markets?.reduce((acc, m) => 
+    acc + (parseFloat(m.volume) || 0), 0
+  ) || 0
 
   const cards = [
     {
@@ -42,7 +46,7 @@ export default function DashboardPage() {
     },
     {
       title: 'Toplam Hacim',
-      value: '₺' + (stats?.markets?.reduce((acc, m) => acc + (parseFloat(m.volume) || 0), 0).toFixed(2) || '0.00'),
+      value: `₺${totalVolume.toFixed(2)}`,
       icon: DollarSign,
       color: '#10b981',
       bgColor: 'rgba(16, 185, 129, 0.1)'
@@ -61,10 +65,12 @@ export default function DashboardPage() {
     )
   }
 
+  const recentMarkets = stats?.markets?.slice(0, 5) || []
+
   return (
-    <div>
+    <div className="space-y-8">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map((card) => {
           const Icon = card.icon
           return (
@@ -95,39 +101,66 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* Recent Markets */}
-      <div className="rounded-2xl p-6" style={{ backgroundColor: '#1a1a1a', border: '1px solid #222222' }}>
-        <h2 className="text-xl font-bold mb-6" style={{ color: '#ffffff' }}>
+      {/* Son Marketler */}
+      <div>
+        <h2 className="text-2xl font-bold mb-6" style={{ color: '#ffffff' }}>
           Son Marketler
         </h2>
         <div className="space-y-4">
-          {stats?.markets?.slice(0, 5).map((market) => (
+          {recentMarkets.map((market) => (
             <div
               key={market.id}
-              className="flex items-center justify-between p-4 rounded-xl"
-              style={{ backgroundColor: '#111111', border: '1px solid #222222' }}
+              className="rounded-xl p-6 transition-all hover:border-opacity-100"
+              style={{ 
+                backgroundColor: '#1a1a1a',
+                border: '1px solid #222222'
+              }}
             >
-              <div>
-                <h3 className="font-semibold mb-1" style={{ color: '#ffffff' }}>
-                  {market.title}
-                </h3>
-                <p className="text-sm" style={{ color: '#888888' }}>
-                  {new Date(market.createdAt).toLocaleDateString('tr-TR')}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <span
-                  className="px-3 py-1 rounded-full text-xs font-medium"
-                  style={{
-                    backgroundColor: market.status === 'open' ? '#ccff33' : market.status === 'closed' ? '#FF6600' : '#555555',
-                    color: market.status === 'open' ? '#000000' : '#ffffff'
-                  }}
-                >
-                  {market.status === 'open' ? 'Açık' : market.status === 'closed' ? 'Kapalı' : 'Sonuçlandı'}
-                </span>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold mb-2" style={{ color: '#ffffff' }}>
+                    {market.title}
+                  </h3>
+                  <div className="flex items-center gap-4 text-sm" style={{ color: '#888888' }}>
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      <span>{new Date(market.closing_date).toLocaleDateString('tr-TR')}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <DollarSign className="w-4 h-4" />
+                      <span>₺{parseFloat(market.volume || 0).toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <span
+                    className="px-4 py-2 rounded-lg text-sm font-medium"
+                    style={{
+                      backgroundColor: 
+                        market.status === 'open' ? 'rgba(0, 255, 0, 0.1)' :
+                        market.status === 'closed' ? 'rgba(255, 165, 0, 0.1)' :
+                        'rgba(128, 128, 128, 0.1)',
+                      color:
+                        market.status === 'open' ? '#00ff00' :
+                        market.status === 'closed' ? '#ffa500' :
+                        '#808080'
+                    }}
+                  >
+                    {market.status === 'open' ? 'Açık' :
+                     market.status === 'closed' ? 'Kapandı' :
+                     'Sonuçlandı'}
+                  </span>
+                </div>
               </div>
             </div>
           ))}
+
+          {recentMarkets.length === 0 && (
+            <div className="text-center py-12">
+              <TrendingUp className="w-12 h-12 mx-auto mb-4" style={{ color: '#ccff33', opacity: 0.3 }} />
+              <p style={{ color: '#888888' }}>Henüz market bulunmuyor</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
