@@ -1,3 +1,4 @@
+// admin-cms/src/context/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from 'react'
 import apiClient from '../lib/apiClient'
 
@@ -50,15 +51,23 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      console.log('🔐 Login isteği gönderiliyor...', { email })
+      
       const response = await apiClient.post('/auth/login', { email, password })
-      const { token, user: userData } = response.data
+      
+      console.log('📦 Backend response:', response.data)
+      
+      // ✅ Backend response formatı: { success, message, accessToken, user }
+      const { accessToken, user: userData } = response.data
 
       // Sadece admin kullanıcılar girebilir
       if (userData.role !== 'admin') {
         throw new Error('Bu panele sadece admin kullanıcılar erişebilir')
       }
 
-      localStorage.setItem('token', token)
+      console.log('✅ Admin kullanıcı doğrulandı:', userData)
+
+      localStorage.setItem('token', accessToken)
       localStorage.setItem('user', JSON.stringify(userData))
       
       setUser(userData)
@@ -66,8 +75,12 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true }
     } catch (error) {
-      console.error('Login error:', error)
-      throw error
+      console.error('❌ Login error:', error)
+      console.error('❌ Error response:', error.response?.data)
+      
+      // Hata mesajını düzgün şekilde göster
+      const errorMessage = error.response?.data?.message || error.message || 'Giriş başarısız'
+      throw new Error(errorMessage)
     }
   }
 
