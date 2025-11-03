@@ -19,6 +19,14 @@ import toast from 'react-hot-toast'
 export default function MarketsManagePage() {
   const queryClient = useQueryClient()
   const [resolvingMarket, setResolvingMarket] = useState(null)
+  const [editingMarket, setEditingMarket] = useState(null)
+  const [editFormData, setEditFormData] = useState({
+    title: '',
+    description: '',
+    category: '',
+    closing_date: '',
+    image_url: ''
+  })
 
   // Markets listesini getir
   const { data: marketsData, isLoading, error } = useQuery({
@@ -74,6 +82,41 @@ export default function MarketsManagePage() {
       toast.error(error.response?.data?.message || 'Market silinirken hata oluştu')
     }
   })
+
+  // Market düzenleme
+  const updateMarketMutation = useMutation({
+    mutationFn: async ({ marketId, data }) => {
+      const response = await apiClient.put(`/admin/markets/${marketId}`, data)
+      return response.data
+    },
+    onSuccess: () => {
+      toast.success('Market başarıyla güncellendi')
+      queryClient.invalidateQueries(['adminMarkets'])
+      setEditingMarket(null)
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Market güncellenirken hata oluştu')
+    }
+  })
+
+  const handleEditClick = (market) => {
+    setEditingMarket(market)
+    setEditFormData({
+      title: market.title || '',
+      description: market.description || '',
+      category: market.category || 'politics',
+      closing_date: market.closing_date ? market.closing_date.split('T')[0] : '',
+      image_url: market.image_url || ''
+    })
+  }
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault()
+    updateMarketMutation.mutate({
+      marketId: editingMarket.id,
+      data: editFormData
+    })
+  }
 
   if (isLoading) {
     return (
@@ -200,6 +243,14 @@ export default function MarketsManagePage() {
 
             {/* Actions */}
             <div className="flex gap-2">
+              <button
+                onClick={() => handleEditClick(market)}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-80"
+                style={{ backgroundColor: '#3b82f6', color: '#ffffff' }}
+              >
+                <Edit className="w-4 h-4" />
+              </button>
+
               {market.status === 'open' && (
                 <button
                   onClick={() => closeMarketMutation.mutate(market.id)}
@@ -304,6 +355,111 @@ export default function MarketsManagePage() {
                 İptal
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editingMarket && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="rounded-2xl p-6 max-w-2xl w-full my-8" style={{ backgroundColor: '#1a1a1a', border: '1px solid #222222' }}>
+            <h3 className="text-xl font-bold mb-6" style={{ color: '#ffffff' }}>
+              Market Düzenle
+            </h3>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#888888' }}>
+                  Başlık
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.title}
+                  onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg"
+                  style={{ backgroundColor: '#222222', color: '#ffffff', border: '1px solid #333333' }}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#888888' }}>
+                  Açıklama
+                </label>
+                <textarea
+                  value={editFormData.description}
+                  onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg h-24"
+                  style={{ backgroundColor: '#222222', color: '#ffffff', border: '1px solid #333333' }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#888888' }}>
+                  Kategori
+                </label>
+                <select
+                  value={editFormData.category}
+                  onChange={(e) => setEditFormData({ ...editFormData, category: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg"
+                  style={{ backgroundColor: '#222222', color: '#ffffff', border: '1px solid #333333' }}
+                  required
+                >
+                  <option value="politics">Siyaset</option>
+                  <option value="sports">Spor</option>
+                  <option value="crypto">Kripto</option>
+                  <option value="economy">Ekonomi</option>
+                  <option value="entertainment">Eğlence</option>
+                  <option value="technology">Teknoloji</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#888888' }}>
+                  Kapanış Tarihi
+                </label>
+                <input
+                  type="date"
+                  value={editFormData.closing_date}
+                  onChange={(e) => setEditFormData({ ...editFormData, closing_date: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg"
+                  style={{ backgroundColor: '#222222', color: '#ffffff', border: '1px solid #333333' }}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#888888' }}>
+                  Görsel URL
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.image_url}
+                  onChange={(e) => setEditFormData({ ...editFormData, image_url: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg"
+                  style={{ backgroundColor: '#222222', color: '#ffffff', border: '1px solid #333333' }}
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  disabled={updateMarketMutation.isPending}
+                  className="flex-1 px-4 py-3 rounded-xl font-medium transition-all hover:opacity-80 disabled:opacity-50"
+                  style={{ backgroundColor: '#ccff33', color: '#000000' }}
+                >
+                  {updateMarketMutation.isPending ? 'Güncelleniyor...' : 'Güncelle'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingMarket(null)}
+                  className="px-4 py-3 rounded-xl font-medium transition-all hover:opacity-80"
+                  style={{ backgroundColor: '#333333', color: '#ffffff' }}
+                >
+                  İptal
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
