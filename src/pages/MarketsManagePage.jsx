@@ -242,30 +242,34 @@ export default function MarketsManagePage() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleEditClick(market)}
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-80"
-                style={{ backgroundColor: '#3b82f6', color: '#ffffff' }}
-              >
-                <Edit className="w-4 h-4" />
-              </button>
+            <div className="flex flex-wrap gap-2">
+              {market.status !== 'resolved' && (
+                <button
+                  onClick={() => handleEditClick(market)}
+                  className="px-3 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-80 flex items-center gap-2"
+                  style={{ backgroundColor: '#3b82f6', color: '#ffffff' }}
+                  title="Düzenle"
+                >
+                  <Edit className="w-4 h-4" />
+                  <span className="hidden sm:inline">Düzenle</span>
+                </button>
+              )}
 
               {market.status === 'open' && (
                 <button
                   onClick={() => closeMarketMutation.mutate(market.id)}
                   disabled={closeMarketMutation.isPending}
-                  className="flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-80 disabled:opacity-50"
+                  className="flex-1 min-w-[120px] px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-80 disabled:opacity-50"
                   style={{ backgroundColor: '#ffa500', color: '#ffffff' }}
                 >
-                  {closeMarketMutation.isPending ? 'Kapatılıyor...' : 'Marketi Kapat'}
+                  {closeMarketMutation.isPending ? 'Kapatılıyor...' : 'Kapat'}
                 </button>
               )}
               
               {market.status === 'closed' && (
                 <button
                   onClick={() => setResolvingMarket(market)}
-                  className="flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-80"
+                  className="flex-1 min-w-[120px] px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-80"
                   style={{ backgroundColor: '#10b981', color: '#ffffff' }}
                 >
                   Sonuçlandır
@@ -274,10 +278,10 @@ export default function MarketsManagePage() {
 
               {market.status === 'resolved' && (
                 <div className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
-                  style={{ backgroundColor: 'rgba(128, 128, 128, 0.2)', color: '#888888' }}
+                  style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', color: '#10b981' }}
                 >
                   <CheckCircle className="w-4 h-4" />
-                  Tamamlandı
+                  <span className="hidden sm:inline">Tamamlandı</span>
                 </div>
               )}
 
@@ -288,8 +292,9 @@ export default function MarketsManagePage() {
                   }
                 }}
                 disabled={deleteMarketMutation.isPending}
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-80 disabled:opacity-50"
+                className="px-3 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-80 disabled:opacity-50"
                 style={{ backgroundColor: '#FF0000', color: '#ffffff' }}
+                title="Sil"
               >
                 <Trash2 className="w-4 h-4" />
               </button>

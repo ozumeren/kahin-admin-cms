@@ -45,9 +45,7 @@ export default function LoginPage() {
             className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4"
             style={{ backgroundColor: 'rgba(204, 255, 51, 0.1)', border: '2px solid #ccff33' }}
           >
-            <div style={{ width: '40px', height: '40px' }}>
-              <Shield style={{ color: '#ccff33' }} />
-            </div>
+            <Shield className="w-10 h-10" style={{ color: '#ccff33' }} />
           </div>
           <h1 className="text-3xl font-bold mb-2" style={{ color: '#ffffff' }}>
             Kahin Admin CMS
@@ -72,20 +70,17 @@ export default function LoginPage() {
                 E-posta
               </label>
               <div className="relative">
-                <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: '#888888' }}>
-                  <Mail />
-                </div>
+                <Mail className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#888888' }} />
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
-                  className="w-full pr-4 py-3 rounded-xl font-medium transition-all focus:outline-none focus:ring-2"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl font-medium transition-all"
                   style={{ 
                     backgroundColor: '#1a1a1a',
                     color: '#ffffff',
-                    border: '1px solid #333333',
-                    paddingLeft: '3rem'
+                    border: '1px solid #333333'
                   }}
                   placeholder="admin@kahinmarket.com"
                 />
@@ -98,20 +93,17 @@ export default function LoginPage() {
                 Şifre
               </label>
               <div className="relative">
-                <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: '#888888' }}>
-                  <Lock />
-                </div>
+                <Lock className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#888888' }} />
                 <input
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
-                  className="w-full pr-4 py-3 rounded-xl font-medium transition-all focus:outline-none focus:ring-2"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl font-medium transition-all"
                   style={{ 
                     backgroundColor: '#1a1a1a',
                     color: '#ffffff',
-                    border: '1px solid #333333',
-                    paddingLeft: '3rem'
+                    border: '1px solid #333333'
                   }}
                   placeholder="••••••••"
                 />
@@ -140,9 +132,7 @@ export default function LoginPage() {
               border: '1px solid rgba(255, 0, 0, 0.3)'
             }}
           >
-            <div style={{ width: '20px', height: '20px', minWidth: '20px', color: '#FF0000', flexShrink: 0 }}>
-              <Shield />
-            </div>
+            <Shield className="w-5 h-5 flex-shrink-0" style={{ color: '#FF0000' }} />
             <p className="text-sm" style={{ color: '#FF0000' }}>
               Bu panel sadece admin kullanıcılar içindir. Yetkisiz erişim girişimleri kayıt altına alınır.
             </p>
