@@ -57,30 +57,33 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <div 
-          className="rounded-2xl p-8"
+          className="rounded-2xl p-6"
           style={{ 
             backgroundColor: '#111111',
             border: '1px solid #222222'
           }}
         >
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: '#ffffff' }}>
                 E-posta
               </label>
               <div className="relative">
-                <Mail className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#888888' }} />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <Mail className="w-5 h-5" style={{ color: '#888888' }} />
+                </div>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
-                  className="w-full pl-12 pr-4 py-3 rounded-xl font-medium transition-all"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl font-medium transition-all focus:outline-none"
                   style={{ 
                     backgroundColor: '#1a1a1a',
                     color: '#ffffff',
-                    border: '1px solid #333333'
+                    border: '1px solid #333333',
+                    boxSizing: 'border-box'
                   }}
                   placeholder="admin@kahinmarket.com"
                 />
@@ -93,17 +96,20 @@ export default function LoginPage() {
                 Şifre
               </label>
               <div className="relative">
-                <Lock className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#888888' }} />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <Lock className="w-5 h-5" style={{ color: '#888888' }} />
+                </div>
                 <input
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
-                  className="w-full pl-12 pr-4 py-3 rounded-xl font-medium transition-all"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl font-medium transition-all focus:outline-none"
                   style={{ 
                     backgroundColor: '#1a1a1a',
                     color: '#ffffff',
-                    border: '1px solid #333333'
+                    border: '1px solid #333333',
+                    boxSizing: 'border-box'
                   }}
                   placeholder="••••••••"
                 />
@@ -114,7 +120,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-xl font-bold transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ 
                 backgroundColor: '#ccff33',
                 color: '#000000'
@@ -132,8 +138,10 @@ export default function LoginPage() {
               border: '1px solid rgba(255, 0, 0, 0.3)'
             }}
           >
-            <Shield className="w-5 h-5 flex-shrink-0" style={{ color: '#FF0000' }} />
-            <p className="text-sm" style={{ color: '#FF0000' }}>
+            <div className="flex-shrink-0">
+              <Shield className="w-5 h-5" style={{ color: '#FF0000' }} />
+            </div>
+            <p className="text-sm flex-1" style={{ color: '#FF0000' }}>
               Bu panel sadece admin kullanıcılar içindir. Yetkisiz erişim girişimleri kayıt altına alınır.
             </p>
           </div>
@@ -141,7 +149,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <p className="text-center text-sm mt-8" style={{ color: '#888888' }}>
-          © 2025 Kahin Market. Tüm hakları saklıdır.
+          © 2025 Kahinmarket. Tüm hakları saklıdır.
         </p>
       </div>
     </div>
