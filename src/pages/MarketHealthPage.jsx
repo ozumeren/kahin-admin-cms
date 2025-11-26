@@ -21,6 +21,15 @@ export default function MarketHealthPage() {
     }
   })
 
+  // Fetch paused markets
+  const { data: pausedData, isLoading: pausedLoading } = useQuery({
+    queryKey: ['pausedMarkets'],
+    queryFn: async () => {
+      const res = await apiClient.get('/admin/markets/paused')
+      return res.data.data
+    }
+  })
+
   // Pause market mutation
   const pauseMutation = useMutation({
     mutationFn: async ({ marketId, reason }) => {
@@ -30,6 +39,7 @@ export default function MarketHealthPage() {
     onSuccess: () => {
       toast.success('Market başarıyla durduruldu')
       queryClient.invalidateQueries(['lowLiquidityMarkets'])
+      queryClient.invalidateQueries(['pausedMarkets'])
       setSelectedMarket(null)
       setPauseReason('')
     },
@@ -47,6 +57,7 @@ export default function MarketHealthPage() {
     onSuccess: () => {
       toast.success('Market başarıyla aktif edildi')
       queryClient.invalidateQueries(['lowLiquidityMarkets'])
+      queryClient.invalidateQueries(['pausedMarkets'])
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Hata oluştu')
@@ -118,6 +129,7 @@ export default function MarketHealthPage() {
 
   const markets = liquidityData?.markets || []
   const criteria = liquidityData?.criteria || {}
+  const pausedMarkets = pausedData?.markets || []
 
   return (
     <div className="space-y-6">
@@ -288,6 +300,66 @@ export default function MarketHealthPage() {
           </div>
         )}
       </div>
+
+      {/* Paused Markets Section */}
+      {pausedMarkets.length > 0 && (
+        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#1a1a1a', border: '1px solid #ff9900' }}>
+          <div className="p-6 border-b" style={{ borderColor: '#222222', backgroundColor: 'rgba(255, 153, 0, 0.1)' }}>
+            <h2 className="text-xl font-bold" style={{ color: '#ffffff' }}>
+              Durdurulmuş Marketler ({pausedMarkets.length})
+            </h2>
+            <p className="text-sm mt-1" style={{ color: '#888888' }}>
+              Bu marketler manuel olarak durduruldu ve işlem kabul etmiyor
+            </p>
+          </div>
+
+          <div className="divide-y" style={{ divideColor: '#222222' }}>
+            {pausedMarkets.map((market) => (
+              <div key={market.id} className="p-6 hover:bg-opacity-50 transition-all" style={{ backgroundColor: 'transparent' }}>
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-lg font-bold" style={{ color: '#ffffff' }}>
+                        {market.title}
+                      </h3>
+                      <span
+                        className="px-2 py-1 rounded text-xs font-bold"
+                        style={{ backgroundColor: '#888888', color: '#000000' }}
+                      >
+                        DURDURULDU
+                      </span>
+                    </div>
+
+                    {/* Pause Info */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm" style={{ color: '#ff9900' }}>
+                        <Pause className="w-4 h-4" />
+                        <span>Durdurulma: {market.pausedDuration?.formatted}</span>
+                      </div>
+                      {market.pauseReason && (
+                        <div className="rounded-lg p-3" style={{ backgroundColor: '#111111', border: '1px solid #333333' }}>
+                          <p className="text-xs mb-1" style={{ color: '#888888' }}>Sebep:</p>
+                          <p className="text-sm" style={{ color: '#ffffff' }}>{market.pauseReason}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleResume(market.id)}
+                    disabled={resumeMutation.isPending}
+                    className="px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-all hover:opacity-80"
+                    style={{ backgroundColor: '#00ff00', color: '#000000' }}
+                  >
+                    <Play className="w-4 h-4" />
+                    Aktif Et
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Pause Modal */}
       {selectedMarket && (
