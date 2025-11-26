@@ -1,6 +1,6 @@
 // admin-cms/src/components/AdminLayout.jsx
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, TrendingUp, Users, LogOut, Menu, X, Shield, Activity, CheckCircle } from 'lucide-react'
+import { LayoutDashboard, TrendingUp, Users, LogOut, Menu, X, Shield, Activity, CheckCircle, AlertTriangle } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
@@ -26,6 +26,7 @@ export default function AdminLayout() {
     { icon: TrendingUp, label: 'Marketler', path: '/markets' },
     { icon: Activity, label: 'Market Sağlığı', path: '/market-health' },
     { icon: CheckCircle, label: 'Market Çözümlemesi', path: '/market-resolution' },
+    { icon: AlertTriangle, label: 'İtiraz Yönetimi', path: '/disputes' },
     { icon: Users, label: 'Kullanıcılar', path: '/users' },
   ]
 

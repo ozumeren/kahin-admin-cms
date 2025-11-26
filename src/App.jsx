@@ -12,6 +12,7 @@ import UsersManagePage from './pages/UsersManagePage'
 import CreateMarketPage from './pages/CreateMarketPage'
 import MarketHealthPage from './pages/MarketHealthPage'
 import MarketResolutionPage from './pages/MarketResolutionPage'
+import DisputeManagementPage from './pages/DisputeManagementPage'
 import './index.css'
 import './styles.css'
 import './App.css'
@@ -49,6 +50,7 @@ function App() {
               <Route path="markets/create" element={<CreateMarketPage />} />
               <Route path="market-health" element={<MarketHealthPage />} />
               <Route path="market-resolution" element={<MarketResolutionPage />} />
+              <Route path="disputes" element={<DisputeManagementPage />} />
               <Route path="users" element={<UsersManagePage />} />
             </Route>
 
