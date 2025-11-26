@@ -1,5 +1,5 @@
 // admin-cms/src/pages/MarketHealthPage.jsx
-import { useQuery, useMutation, useQueryClient } from '@tantml:react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Activity, AlertTriangle, TrendingDown, Play, Pause, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
