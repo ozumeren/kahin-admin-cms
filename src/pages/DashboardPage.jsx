@@ -4,42 +4,44 @@ import { TrendingUp, Users, DollarSign, Activity, Clock, CheckCircle } from 'luc
 import apiClient from '../lib/apiClient'
 
 export default function DashboardPage() {
-  const { data: stats, isLoading } = useQuery({
-    queryKey: ['adminStats'],
+  const { data: dashboardData, isLoading } = useQuery({
+    queryKey: ['adminDashboard'],
     queryFn: async () => {
-      const [marketsRes, usersRes] = await Promise.all([
-        apiClient.get('/admin/markets'),
-        apiClient.get('/admin/users')
-      ])
-      return {
-        markets: marketsRes.data.data || [],
-        users: usersRes.data.data?.users || []
-      }
+      const res = await apiClient.get('/admin/dashboard')
+      return res.data.data
     }
   })
 
-  const totalVolume = stats?.markets?.reduce((acc, m) => 
-    acc + (parseFloat(m.volume) || 0), 0
-  ) || 0
+  const { data: marketsData } = useQuery({
+    queryKey: ['adminMarkets'],
+    queryFn: async () => {
+      const res = await apiClient.get('/admin/markets')
+      return res.data.data || []
+    }
+  })
+
+  const stats = dashboardData
+  const markets = marketsData || []
+  const totalVolume = parseFloat(stats?.volume?.total || 0)
 
   const cards = [
     {
       title: 'Toplam Market',
-      value: stats?.markets?.length || 0,
+      value: stats?.markets?.total || 0,
       icon: TrendingUp,
       color: '#ccff33',
       bgColor: 'rgba(204, 255, 51, 0.1)'
     },
     {
       title: 'Açık Marketler',
-      value: stats?.markets?.filter(m => m.status === 'open').length || 0,
+      value: stats?.markets?.open || 0,
       icon: Activity,
       color: '#00ff00',
       bgColor: 'rgba(0, 255, 0, 0.1)'
     },
     {
       title: 'Toplam Kullanıcı',
-      value: stats?.users?.length || 0,
+      value: stats?.users?.total || 0,
       icon: Users,
       color: '#3b82f6',
       bgColor: 'rgba(59, 130, 246, 0.1)'
@@ -65,7 +67,7 @@ export default function DashboardPage() {
     )
   }
 
-  const recentMarkets = stats?.markets?.slice(0, 5) || []
+  const recentMarkets = markets?.slice(0, 5) || []
 
   return (
     <div className="space-y-8">
