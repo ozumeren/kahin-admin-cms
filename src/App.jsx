@@ -11,6 +11,7 @@ import MarketsManagePage from './pages/MarketsManagePage'
 import UsersManagePage from './pages/UsersManagePage'
 import CreateMarketPage from './pages/CreateMarketPage'
 import MarketHealthPage from './pages/MarketHealthPage'
+import MarketResolutionPage from './pages/MarketResolutionPage'
 import './index.css'
 import './styles.css'
 import './App.css'
@@ -47,6 +48,7 @@ function App() {
               <Route path="markets" element={<MarketsManagePage />} />
               <Route path="markets/create" element={<CreateMarketPage />} />
               <Route path="market-health" element={<MarketHealthPage />} />
+              <Route path="market-resolution" element={<MarketResolutionPage />} />
               <Route path="users" element={<UsersManagePage />} />
             </Route>
 
