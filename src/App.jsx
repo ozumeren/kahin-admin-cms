@@ -10,6 +10,7 @@ import DashboardPage from './pages/DashboardPage'
 import MarketsManagePage from './pages/MarketsManagePage'
 import UsersManagePage from './pages/UsersManagePage'
 import CreateMarketPage from './pages/CreateMarketPage'
+import MarketHealthPage from './pages/MarketHealthPage'
 import './index.css'
 import './styles.css'
 import './App.css'
@@ -45,6 +46,7 @@ function App() {
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="markets" element={<MarketsManagePage />} />
               <Route path="markets/create" element={<CreateMarketPage />} />
+              <Route path="market-health" element={<MarketHealthPage />} />
               <Route path="users" element={<UsersManagePage />} />
             </Route>
 

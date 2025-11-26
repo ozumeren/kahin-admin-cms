@@ -57,3 +57,7 @@ Thumbs.db
 
 # Vite
 .vite/
+
+
+# ÖNEMLİ: package-lock.json KALDIRILDI!
+# Production build için gerekli
