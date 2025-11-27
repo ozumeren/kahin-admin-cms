@@ -181,12 +181,82 @@ export default function DepositsPage() {
     return labels[method] || method
   }
 
-  if (isLoading) {
-    return (
-      <div style={{ padding: '24px', color: '#cccccc' }}>
-        Yükleniyor...
+  // Skeleton Loader Component
+  const SkeletonLoader = () => (
+    <div style={{ padding: '24px' }}>
+      <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <div style={{
+            height: '32px',
+            width: '300px',
+            backgroundColor: '#1a1a1a',
+            borderRadius: '6px',
+            marginBottom: '8px',
+            animation: 'pulse 1.5s ease-in-out infinite'
+          }} />
+          <div style={{
+            height: '20px',
+            width: '400px',
+            backgroundColor: '#1a1a1a',
+            borderRadius: '6px',
+            animation: 'pulse 1.5s ease-in-out infinite'
+          }} />
+        </div>
+        <div style={{
+          height: '40px',
+          width: '180px',
+          backgroundColor: '#1a1a1a',
+          borderRadius: '8px',
+          animation: 'pulse 1.5s ease-in-out infinite'
+        }} />
       </div>
-    )
+
+      <div style={{
+        padding: '20px',
+        backgroundColor: '#1a1a1a',
+        border: '1px solid #333333',
+        borderRadius: '12px',
+        marginBottom: '24px'
+      }}>
+        {[1, 2, 3].map(i => (
+          <div key={i} style={{
+            height: '40px',
+            backgroundColor: '#0a0a0a',
+            borderRadius: '6px',
+            marginBottom: '12px',
+            animation: 'pulse 1.5s ease-in-out infinite'
+          }} />
+        ))}
+      </div>
+
+      <div style={{
+        backgroundColor: '#1a1a1a',
+        border: '1px solid #333333',
+        borderRadius: '12px',
+        padding: '16px'
+      }}>
+        {[1, 2, 3, 4, 5].map(i => (
+          <div key={i} style={{
+            height: '100px',
+            backgroundColor: '#0f0f0f',
+            borderRadius: '8px',
+            marginBottom: '12px',
+            animation: 'pulse 1.5s ease-in-out infinite'
+          }} />
+        ))}
+      </div>
+
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
+    </div>
+  )
+
+  if (isLoading) {
+    return <SkeletonLoader />
   }
 
   return (
