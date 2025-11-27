@@ -15,6 +15,8 @@ import MarketResolutionPage from './pages/MarketResolutionPage'
 import DisputeManagementPage from './pages/DisputeManagementPage'
 import TreasuryPage from './pages/TreasuryPage'
 import TransactionsPage from './pages/TransactionsPage'
+import WithdrawalsPage from './pages/WithdrawalsPage'
+import DepositsPage from './pages/DepositsPage'
 import './index.css'
 import './styles.css'
 import './App.css'
@@ -55,6 +57,8 @@ function App() {
               <Route path="disputes" element={<DisputeManagementPage />} />
               <Route path="treasury" element={<TreasuryPage />} />
               <Route path="transactions" element={<TransactionsPage />} />
+              <Route path="withdrawals" element={<WithdrawalsPage />} />
+              <Route path="deposits" element={<DepositsPage />} />
               <Route path="users" element={<UsersManagePage />} />
             </Route>
 
