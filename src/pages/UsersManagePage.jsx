@@ -1,7 +1,7 @@
 // admin-cms/src/pages/UsersManagePage.jsx
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Search, Users as UsersIcon, Shield, DollarSign, X, Eye, TrendingUp, Activity } from 'lucide-react'
+import { Search, Users as UsersIcon, Shield, DollarSign, X, Eye, Activity, Lock, Unlock, Plus, Minus } from 'lucide-react'
 import apiClient from '../lib/apiClient'
 import toast from 'react-hot-toast'
 
@@ -10,7 +10,10 @@ export default function UsersManagePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedUser, setSelectedUser] = useState(null)
   const [balanceAmount, setBalanceAmount] = useState('')
+  const [balanceReason, setBalanceReason] = useState('')
+  const [balanceType, setBalanceType] = useState('increase') // 'increase' or 'decrease'
   const [showDetailModal, setShowDetailModal] = useState(false)
+  const [showBalanceModal, setShowBalanceModal] = useState(false)
 
   const { data: usersData, isLoading } = useQuery({
     queryKey: ['adminUsers', searchQuery],
@@ -22,22 +25,66 @@ export default function UsersManagePage() {
 
   const users = usersData?.users || []
 
-  const addBalanceMutation = useMutation({
-    mutationFn: async ({ userId, amount }) => {
-      const response = await apiClient.post(`/admin/users/${userId}/add-balance`, {
-        amount: parseFloat(amount),
-        description: 'Admin tarafından eklenen bakiye'
+  // Fetch balance history for selected user
+  const { data: balanceHistory } = useQuery({
+    queryKey: ['userBalanceHistory', selectedUser?.id],
+    queryFn: async () => {
+      if (!selectedUser?.id) return null
+      const response = await apiClient.get(`/admin/users/${selectedUser.id}/balance/history`)
+      return response.data.data
+    },
+    enabled: !!selectedUser?.id && showDetailModal
+  })
+
+  const adjustBalanceMutation = useMutation({
+    mutationFn: async ({ userId, amount, reason, type }) => {
+      const adjustmentAmount = type === 'decrease' ? -Math.abs(amount) : Math.abs(amount)
+      const response = await apiClient.post(`/admin/users/${userId}/balance/adjust`, {
+        amount: adjustmentAmount,
+        reason,
+        type: type === 'decrease' ? 'correction' : 'compensation'
       })
       return response.data
     },
     onSuccess: () => {
-      toast.success('Bakiye başarıyla eklendi')
+      toast.success('Bakiye başarıyla güncellendi')
       queryClient.invalidateQueries(['adminUsers'])
+      queryClient.invalidateQueries(['userBalanceHistory'])
       setSelectedUser(null)
       setBalanceAmount('')
+      setBalanceReason('')
+      setShowBalanceModal(false)
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Bakiye eklenirken hata oluştu')
+      toast.error(error.response?.data?.message || 'Bakiye güncellenirken hata oluştu')
+    }
+  })
+
+  const freezeBalanceMutation = useMutation({
+    mutationFn: async ({ userId, reason }) => {
+      const response = await apiClient.post(`/admin/users/${userId}/balance/freeze`, { reason })
+      return response.data
+    },
+    onSuccess: () => {
+      toast.success('Bakiye donduruldu')
+      queryClient.invalidateQueries(['adminUsers'])
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Bakiye dondurulurken hata oluştu')
+    }
+  })
+
+  const unfreezeBalanceMutation = useMutation({
+    mutationFn: async ({ userId, reason }) => {
+      const response = await apiClient.post(`/admin/users/${userId}/balance/unfreeze`, { reason })
+      return response.data
+    },
+    onSuccess: () => {
+      toast.success('Bakiye çözüldü')
+      queryClient.invalidateQueries(['adminUsers'])
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Bakiye çözülürken hata oluştu')
     }
   })
 
@@ -69,14 +116,44 @@ export default function UsersManagePage() {
     }
   })
 
-  const handleAddBalance = () => {
+  const handleAdjustBalance = () => {
     if (!balanceAmount || parseFloat(balanceAmount) <= 0) {
       toast.error('Geçerli bir miktar girin')
       return
     }
-    addBalanceMutation.mutate({
+    if (!balanceReason || balanceReason.trim() === '') {
+      toast.error('Lütfen bir sebep belirtin')
+      return
+    }
+    adjustBalanceMutation.mutate({
       userId: selectedUser.id,
-      amount: balanceAmount
+      amount: parseFloat(balanceAmount),
+      reason: balanceReason,
+      type: balanceType
+    })
+  }
+
+  const handleFreezeBalance = () => {
+    const reason = prompt('Bakiye dondurma sebebini girin:')
+    if (!reason || reason.trim() === '') {
+      toast.error('Lütfen bir sebep belirtin')
+      return
+    }
+    freezeBalanceMutation.mutate({
+      userId: selectedUser.id,
+      reason
+    })
+  }
+
+  const handleUnfreezeBalance = () => {
+    const reason = prompt('Bakiye çözme sebebini girin:')
+    if (!reason || reason.trim() === '') {
+      toast.error('Lütfen bir sebep belirtin')
+      return
+    }
+    unfreezeBalanceMutation.mutate({
+      userId: selectedUser.id,
+      reason
     })
   }
 
@@ -195,11 +272,12 @@ export default function UsersManagePage() {
                     <button
                       onClick={() => {
                         setSelectedUser(user)
+                        setShowBalanceModal(true)
                         setShowDetailModal(false)
                       }}
                       className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-80"
                       style={{ backgroundColor: '#ccff33', color: '#000000' }}
-                      title="Bakiye Ekle"
+                      title="Bakiye Yönet"
                     >
                       <DollarSign className="w-4 h-4" />
                     </button>
@@ -250,19 +328,25 @@ export default function UsersManagePage() {
         )}
       </div>
 
-      {/* Add Balance Modal */}
-      {selectedUser && !showDetailModal && (
+      {/* Balance Management Modal */}
+      {selectedUser && showBalanceModal && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
           <div className="rounded-2xl p-6 max-w-md w-full" style={{ backgroundColor: '#1a1a1a', border: '1px solid #222222' }}>
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold" style={{ color: '#ffffff' }}>
-                Bakiye Ekle
+                Bakiye Yönetimi
               </h3>
-              <button onClick={() => setSelectedUser(null)} className="p-2" style={{ color: '#888888' }}>
+              <button onClick={() => {
+                setSelectedUser(null)
+                setShowBalanceModal(false)
+                setBalanceAmount('')
+                setBalanceReason('')
+                setBalanceType('increase')
+              }} className="p-2" style={{ color: '#888888' }}>
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="mb-4">
               <p className="text-sm mb-2" style={{ color: '#888888' }}>Kullanıcı:</p>
               <p className="font-semibold" style={{ color: '#ffffff' }}>{selectedUser.username}</p>
@@ -276,9 +360,42 @@ export default function UsersManagePage() {
               </p>
             </div>
 
-            <div className="mb-6">
+            {/* Balance Adjustment Type */}
+            <div className="mb-4">
               <label className="block text-sm font-medium mb-2" style={{ color: '#ffffff' }}>
-                Eklenecek Miktar
+                İşlem Tipi
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setBalanceType('increase')}
+                  className="px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2"
+                  style={{
+                    backgroundColor: balanceType === 'increase' ? '#10b981' : '#111111',
+                    color: '#ffffff',
+                    border: balanceType === 'increase' ? '2px solid #10b981' : '1px solid #333333'
+                  }}
+                >
+                  <Plus className="w-4 h-4" />
+                  Artır
+                </button>
+                <button
+                  onClick={() => setBalanceType('decrease')}
+                  className="px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2"
+                  style={{
+                    backgroundColor: balanceType === 'decrease' ? '#ef4444' : '#111111',
+                    color: '#ffffff',
+                    border: balanceType === 'decrease' ? '2px solid #ef4444' : '1px solid #333333'
+                  }}
+                >
+                  <Minus className="w-4 h-4" />
+                  Azalt
+                </button>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2" style={{ color: '#ffffff' }}>
+                Miktar
               </label>
               <input
                 type="number"
@@ -288,7 +405,7 @@ export default function UsersManagePage() {
                 step="0.01"
                 min="0"
                 className="w-full px-4 py-3 rounded-xl font-medium"
-                style={{ 
+                style={{
                   backgroundColor: '#111111',
                   color: '#ffffff',
                   border: '1px solid #333333'
@@ -296,21 +413,75 @@ export default function UsersManagePage() {
               />
             </div>
 
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-2" style={{ color: '#ffffff' }}>
+                Sebep <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <textarea
+                value={balanceReason}
+                onChange={(e) => setBalanceReason(e.target.value)}
+                placeholder="İşlem sebebini belirtin..."
+                rows="3"
+                className="w-full px-4 py-3 rounded-xl font-medium resize-none"
+                style={{
+                  backgroundColor: '#111111',
+                  color: '#ffffff',
+                  border: '1px solid #333333'
+                }}
+              />
+            </div>
+
+            {/* Freeze/Unfreeze Buttons */}
+            <div className="mb-6 p-4 rounded-xl" style={{ backgroundColor: '#111111', border: '1px solid #333333' }}>
+              <p className="text-sm font-medium mb-3" style={{ color: '#888888' }}>
+                Bakiye Kontrolü
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={handleFreezeBalance}
+                  disabled={freezeBalanceMutation.isPending}
+                  className="px-4 py-2 rounded-lg font-medium transition-all hover:opacity-80 disabled:opacity-50 flex items-center justify-center gap-2"
+                  style={{ backgroundColor: '#f59e0b', color: '#000000' }}
+                >
+                  <Lock className="w-4 h-4" />
+                  Dondur
+                </button>
+                <button
+                  onClick={handleUnfreezeBalance}
+                  disabled={unfreezeBalanceMutation.isPending}
+                  className="px-4 py-2 rounded-lg font-medium transition-all hover:opacity-80 disabled:opacity-50 flex items-center justify-center gap-2"
+                  style={{ backgroundColor: '#3b82f6', color: '#ffffff' }}
+                >
+                  <Unlock className="w-4 h-4" />
+                  Çöz
+                </button>
+              </div>
+            </div>
+
             <div className="flex gap-3">
               <button
-                onClick={() => setSelectedUser(null)}
+                onClick={() => {
+                  setSelectedUser(null)
+                  setShowBalanceModal(false)
+                  setBalanceAmount('')
+                  setBalanceReason('')
+                  setBalanceType('increase')
+                }}
                 className="flex-1 px-4 py-3 rounded-xl font-medium transition-all"
                 style={{ backgroundColor: '#333333', color: '#ffffff' }}
               >
                 İptal
               </button>
               <button
-                onClick={handleAddBalance}
-                disabled={addBalanceMutation.isPending}
+                onClick={handleAdjustBalance}
+                disabled={adjustBalanceMutation.isPending}
                 className="flex-1 px-4 py-3 rounded-xl font-bold transition-all disabled:opacity-50"
-                style={{ backgroundColor: '#ccff33', color: '#000000' }}
+                style={{
+                  backgroundColor: balanceType === 'increase' ? '#10b981' : '#ef4444',
+                  color: '#ffffff'
+                }}
               >
-                {addBalanceMutation.isPending ? 'Ekleniyor...' : 'Bakiye Ekle'}
+                {adjustBalanceMutation.isPending ? 'İşleniyor...' : (balanceType === 'increase' ? 'Bakiye Artır' : 'Bakiye Azalt')}
               </button>
             </div>
           </div>
@@ -393,36 +564,85 @@ export default function UsersManagePage() {
                 </div>
                 <div className="pt-4 border-t" style={{ borderColor: '#222222' }}>
                   <button
-                    onClick={() => setShowDetailModal(false)}
+                    onClick={() => {
+                      setShowDetailModal(false)
+                      setShowBalanceModal(true)
+                    }}
                     className="w-full px-4 py-3 rounded-xl font-medium transition-all hover:opacity-80 flex items-center justify-center gap-2"
                     style={{ backgroundColor: '#ccff33', color: '#000000' }}
                   >
                     <DollarSign className="w-4 h-4" />
-                    Bakiye Ekle
+                    Bakiye Yönet
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Stats Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="rounded-xl p-4 text-center" style={{ backgroundColor: '#111111', border: '1px solid #222222' }}>
-                <TrendingUp className="w-6 h-6 mx-auto mb-2" style={{ color: '#ccff33' }} />
-                <p className="text-xs mb-1" style={{ color: '#888888' }}>Toplam İşlem</p>
-                <p className="text-xl font-bold" style={{ color: '#ffffff' }}>-</p>
-                <p className="text-xs mt-1" style={{ color: '#666666' }}>Yakında</p>
-              </div>
-              <div className="rounded-xl p-4 text-center" style={{ backgroundColor: '#111111', border: '1px solid #222222' }}>
-                <Activity className="w-6 h-6 mx-auto mb-2" style={{ color: '#3b82f6' }} />
-                <p className="text-xs mb-1" style={{ color: '#888888' }}>Aktif Pozisyon</p>
-                <p className="text-xl font-bold" style={{ color: '#ffffff' }}>-</p>
-                <p className="text-xs mt-1" style={{ color: '#666666' }}>Yakında</p>
-              </div>
-              <div className="rounded-xl p-4 text-center" style={{ backgroundColor: '#111111', border: '1px solid #222222' }}>
-                <DollarSign className="w-6 h-6 mx-auto mb-2" style={{ color: '#10b981' }} />
-                <p className="text-xs mb-1" style={{ color: '#888888' }}>Toplam Kar/Zarar</p>
-                <p className="text-xl font-bold" style={{ color: '#ffffff' }}>-</p>
-                <p className="text-xs mt-1" style={{ color: '#666666' }}>Yakında</p>
+            {/* Balance History Section */}
+            <div className="mb-6">
+              <h4 className="text-lg font-bold mb-4" style={{ color: '#ffffff' }}>
+                Bakiye Geçmişi
+              </h4>
+              <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#111111', border: '1px solid #222222' }}>
+                {balanceHistory && balanceHistory.length > 0 ? (
+                  <div className="max-h-64 overflow-y-auto">
+                    {balanceHistory.slice(0, 10).map((transaction, index) => {
+                      const isPositive = parseFloat(transaction.amount) > 0
+                      return (
+                        <div
+                          key={transaction.id}
+                          className="p-4"
+                          style={{
+                            borderBottom: index < Math.min(balanceHistory.length, 10) - 1 ? '1px solid #222222' : 'none'
+                          }}
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex-1">
+                              <p className="text-sm font-medium mb-1" style={{ color: '#ffffff' }}>
+                                {transaction.type === 'deposit' && 'Para Yatırma'}
+                                {transaction.type === 'withdrawal' && 'Para Çekme'}
+                                {transaction.type === 'trade' && 'İşlem'}
+                                {transaction.type === 'payout' && 'Ödeme'}
+                                {transaction.type === 'refund' && 'İade'}
+                                {transaction.type === 'fee' && 'Komisyon'}
+                                {transaction.type === 'correction' && 'Düzeltme'}
+                                {transaction.type === 'compensation' && 'Tazminat'}
+                                {transaction.type === 'penalty' && 'Ceza'}
+                              </p>
+                              {transaction.description && (
+                                <p className="text-xs" style={{ color: '#888888' }}>
+                                  {transaction.description}
+                                </p>
+                              )}
+                              <p className="text-xs mt-1" style={{ color: '#666666' }}>
+                                {new Date(transaction.createdAt).toLocaleString('tr-TR', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                            </div>
+                            <p
+                              className="text-lg font-bold"
+                              style={{ color: isPositive ? '#10b981' : '#ef4444' }}
+                            >
+                              {isPositive ? '+' : ''}₺{parseFloat(transaction.amount).toFixed(2)}
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-8 text-center">
+                    <Activity className="w-12 h-12 mx-auto mb-3" style={{ color: '#666666' }} />
+                    <p className="text-sm" style={{ color: '#888888' }}>
+                      Henüz işlem geçmişi yok
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
