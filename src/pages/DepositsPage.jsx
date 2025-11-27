@@ -28,7 +28,7 @@ export default function DepositsPage() {
     proofUrl: ''
   })
 
-  // Fetch deposits
+  // Fetch deposits (optimized with caching)
   const { data: depositsData, isLoading } = useQuery({
     queryKey: ['deposits', filters],
     queryFn: async () => {
@@ -39,7 +39,9 @@ export default function DepositsPage() {
 
       const res = await apiClient.get('/admin/deposits', { params })
       return res.data
-    }
+    },
+    staleTime: 30000, // Cache for 30 seconds
+    gcTime: 300000, // Keep in cache for 5 minutes
   })
 
   // Create deposit mutation

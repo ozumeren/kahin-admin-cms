@@ -17,7 +17,7 @@ export default function WithdrawalsPage() {
   const [reviewNotes, setReviewNotes] = useState('')
   const [reviewAction, setReviewAction] = useState('approve') // 'approve' or 'reject'
 
-  // Fetch withdrawals
+  // Fetch withdrawals (optimized with caching)
   const { data: withdrawalsData, isLoading } = useQuery({
     queryKey: ['withdrawals', filters],
     queryFn: async () => {
@@ -27,7 +27,9 @@ export default function WithdrawalsPage() {
 
       const res = await apiClient.get('/admin/withdrawals', { params })
       return res.data
-    }
+    },
+    staleTime: 30000, // Cache for 30 seconds
+    gcTime: 300000, // Keep in cache for 5 minutes
   })
 
   // Approve mutation
