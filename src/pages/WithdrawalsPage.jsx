@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Banknote, Filter, Check, X, Clock, Search, AlertCircle } from 'lucide-react'
-import apiClient from '../api/client'
+import apiClient from '../lib/apiClient'
 import toast from 'react-hot-toast'
 
 export default function WithdrawalsPage() {

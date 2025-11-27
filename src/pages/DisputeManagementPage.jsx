@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { AlertCircle, Clock, CheckCircle, XCircle, Flag, TrendingUp, MessageSquare } from 'lucide-react'
-import apiClient from '../api/client'
+import apiClient from '../lib/apiClient'
 
 export default function DisputeManagementPage() {
   const [selectedDispute, setSelectedDispute] = useState(null)

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Wallet, TrendingUp, Lock, AlertTriangle, DollarSign, Users, BarChart3 } from 'lucide-react'
-import apiClient from '../api/client'
+import apiClient from '../lib/apiClient'
 
 export default function TreasuryPage() {
   const [selectedTab, setSelectedTab] = useState('overview') // 'overview', 'negative', 'top-holders'
