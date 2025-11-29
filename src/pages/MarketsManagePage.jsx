@@ -44,8 +44,11 @@ export default function MarketsManagePage() {
       return response.data
     },
     onSuccess: () => {
-      toast.success('Market başarıyla kapatıldı')
+      toast.success('Market başarıyla kapatıldı ve çözümleme ekranına eklendi')
+      // Tüm ilgili sayfaları güncelle
       queryClient.invalidateQueries(['adminMarkets'])
+      queryClient.invalidateQueries(['resolvableMarkets']) // Market Çözümleme sayfası
+      queryClient.invalidateQueries(['adminDashboard']) // Dashboard
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Market kapatılırken hata oluştu')
@@ -60,7 +63,10 @@ export default function MarketsManagePage() {
     },
     onSuccess: () => {
       toast.success('Market başarıyla sonuçlandırıldı')
+      // Tüm ilgili sayfaları güncelle
       queryClient.invalidateQueries(['adminMarkets'])
+      queryClient.invalidateQueries(['resolvableMarkets'])
+      queryClient.invalidateQueries(['adminDashboard'])
       setResolvingMarket(null)
     },
     onError: (error) => {
@@ -76,7 +82,10 @@ export default function MarketsManagePage() {
     },
     onSuccess: () => {
       toast.success('Market başarıyla silindi')
+      // Tüm ilgili sayfaları güncelle
       queryClient.invalidateQueries(['adminMarkets'])
+      queryClient.invalidateQueries(['resolvableMarkets'])
+      queryClient.invalidateQueries(['adminDashboard'])
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Market silinirken hata oluştu')
@@ -91,7 +100,10 @@ export default function MarketsManagePage() {
     },
     onSuccess: () => {
       toast.success('Market başarıyla güncellendi')
+      // Tüm ilgili sayfaları güncelle
       queryClient.invalidateQueries(['adminMarkets'])
+      queryClient.invalidateQueries(['resolvableMarkets'])
+      queryClient.invalidateQueries(['adminDashboard'])
       setEditingMarket(null)
     },
     onError: (error) => {

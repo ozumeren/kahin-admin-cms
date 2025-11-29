@@ -21,7 +21,7 @@ export default function DashboardPage() {
   })
 
   const stats = dashboardData
-  const markets = marketsData || []
+  const markets = Array.isArray(marketsData) ? marketsData : []
   const totalVolume = parseFloat(stats?.volume?.total || 0)
 
   const cards = [
@@ -67,7 +67,7 @@ export default function DashboardPage() {
     )
   }
 
-  const recentMarkets = markets?.slice(0, 5) || []
+  const recentMarkets = Array.isArray(markets) ? markets.slice(0, 5) : []
 
   return (
     <div className="space-y-8">

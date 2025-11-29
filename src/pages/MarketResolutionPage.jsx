@@ -57,8 +57,11 @@ export default function MarketResolutionPage() {
       return res.data
     },
     onSuccess: () => {
+      // Tüm ilgili sayfaları güncelle
       queryClient.invalidateQueries(['resolvableMarkets'])
       queryClient.invalidateQueries(['scheduledResolutions'])
+      queryClient.invalidateQueries(['adminMarkets']) // Marketler sayfası
+      queryClient.invalidateQueries(['adminDashboard']) // Dashboard
       setShowResolveForm(false)
       setShowPreview(false)
       setSelectedMarket(null)
