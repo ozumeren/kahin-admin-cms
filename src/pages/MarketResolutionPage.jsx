@@ -23,7 +23,9 @@ export default function MarketResolutionPage() {
       const res = await apiClient.get('/admin/markets', {
         params: { status: 'closed' }
       })
-      return res.data.data
+      // Backend response: { success: true, data: [...] }
+      // axios already unwraps to res.data, so we access res.data.data
+      return { markets: res.data.data || [] }
     }
   })
 
@@ -32,7 +34,7 @@ export default function MarketResolutionPage() {
     queryKey: ['scheduledResolutions'],
     queryFn: async () => {
       const res = await apiClient.get('/admin/markets/scheduled-resolutions')
-      return res.data.data
+      return res.data.data || []
     }
   })
 
