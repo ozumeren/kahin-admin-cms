@@ -1,16 +1,16 @@
 // admin-cms/src/pages/MarketsManagePage.jsx
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { 
-  Edit, 
-  XCircle, 
-  CheckCircle, 
-  Plus, 
-  TrendingUp, 
+import {
+  Edit,
+  XCircle,
+  CheckCircle,
+  Plus,
+  TrendingUp,
   Clock,
   DollarSign,
-  Eye,
+  ArrowRight,
   Trash2
 } from 'lucide-react'
 import apiClient from '../lib/apiClient'
@@ -18,7 +18,7 @@ import toast from 'react-hot-toast'
 
 export default function MarketsManagePage() {
   const queryClient = useQueryClient()
-  const [resolvingMarket, setResolvingMarket] = useState(null)
+  const navigate = useNavigate()
   const [editingMarket, setEditingMarket] = useState(null)
   const [editFormData, setEditFormData] = useState({
     title: '',
@@ -55,24 +55,7 @@ export default function MarketsManagePage() {
     }
   })
 
-  // Market sonuçlandırma
-  const resolveMarketMutation = useMutation({
-    mutationFn: async ({ marketId, outcome }) => {
-      const response = await apiClient.post(`/admin/markets/${marketId}/resolve`, { outcome })
-      return response.data
-    },
-    onSuccess: () => {
-      toast.success('Market başarıyla sonuçlandırıldı')
-      // Tüm ilgili sayfaları güncelle
-      queryClient.invalidateQueries(['adminMarkets'])
-      queryClient.invalidateQueries(['resolvableMarkets'])
-      queryClient.invalidateQueries(['adminDashboard'])
-      setResolvingMarket(null)
-    },
-    onError: (error) => {
-      toast.error(error.response?.data?.message || 'Market sonuçlandırılırken hata oluştu')
-    }
-  })
+  // Market sonuçlandırma kaldırıldı - Market Çözümlemesi sayfasından yapılacak
 
   // Market silme
   const deleteMarketMutation = useMutation({
@@ -164,7 +147,7 @@ export default function MarketsManagePage() {
           <h1 className="text-3xl font-bold mb-2" style={{ color: '#ffffff' }}>
             Market Yönetimi
           </h1>
-          <p style={{ color: '#888888' }}>Marketleri görüntüleyin, kapatın ve sonuçlandırın</p>
+          <p style={{ color: '#888888' }}>Marketleri görüntüleyin, düzenleyin ve kapatın</p>
         </div>
         <Link 
           to="/markets/create"
@@ -277,14 +260,15 @@ export default function MarketsManagePage() {
                   {closeMarketMutation.isPending ? 'Kapatılıyor...' : 'Kapat'}
                 </button>
               )}
-              
+
               {market.status === 'closed' && (
                 <button
-                  onClick={() => setResolvingMarket(market)}
-                  className="flex-1 min-w-[120px] px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-80"
-                  style={{ backgroundColor: '#10b981', color: '#ffffff' }}
+                  onClick={() => navigate('/market-resolution')}
+                  className="flex-1 min-w-[120px] px-4 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-80 flex items-center justify-center gap-2"
+                  style={{ backgroundColor: '#ccff33', color: '#000000' }}
                 >
-                  Sonuçlandır
+                  <span>Çözümle</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               )}
 
@@ -334,45 +318,6 @@ export default function MarketsManagePage() {
             <Plus className="w-5 h-5" />
             Yeni Market Oluştur
           </Link>
-        </div>
-      )}
-
-      {/* Resolve Modal */}
-      {resolvingMarket && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-          <div className="rounded-2xl p-6 max-w-md w-full" style={{ backgroundColor: '#1a1a1a', border: '1px solid #222222' }}>
-            <h3 className="text-xl font-bold mb-4" style={{ color: '#ffffff' }}>
-              Market Sonuçlandır
-            </h3>
-            <p className="mb-6" style={{ color: '#888888' }}>
-              {resolvingMarket.title}
-            </p>
-            <div className="space-y-3">
-              <button
-                onClick={() => resolveMarketMutation.mutate({ marketId: resolvingMarket.id, outcome: true })}
-                disabled={resolveMarketMutation.isPending}
-                className="w-full px-4 py-3 rounded-xl font-medium transition-all hover:opacity-80 disabled:opacity-50"
-                style={{ backgroundColor: '#10b981', color: '#ffffff' }}
-              >
-                EVET Kazandı
-              </button>
-              <button
-                onClick={() => resolveMarketMutation.mutate({ marketId: resolvingMarket.id, outcome: false })}
-                disabled={resolveMarketMutation.isPending}
-                className="w-full px-4 py-3 rounded-xl font-medium transition-all hover:opacity-80 disabled:opacity-50"
-                style={{ backgroundColor: '#FF0000', color: '#ffffff' }}
-              >
-                HAYIR Kazandı
-              </button>
-              <button
-                onClick={() => setResolvingMarket(null)}
-                className="w-full px-4 py-3 rounded-xl font-medium transition-all hover:opacity-80"
-                style={{ backgroundColor: '#333333', color: '#ffffff' }}
-              >
-                İptal
-              </button>
-            </div>
-          </div>
         </div>
       )}
 
